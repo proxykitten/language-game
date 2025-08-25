@@ -64,7 +64,7 @@
                     <div class="custom-option sm:col-span-2 flex items-center gap-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 has-[:checked]:border-indigo-600 has-[:checked]:dark:border-indigo-600">
                         <input type="radio" name="gameMode" id="mode-time-attack" value="timeAttack" class="sr-only">
                         <label for="mode-time-attack" class="w-full text-center p-3 font-medium cursor-pointer rounded-l-md has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-slate-100 dark:hover:bg-slate-700">Time Attack</label>
-                        <input type="number" id="time-attack-input" placeholder="60" class="w-16 text-center bg-transparent focus:outline-none font-medium pr-3" min="10" max="1800">
+                        <input type="number" id="time-attack-input" placeholder="60" class="w-16 text-center bg-transparent focus:outline-none font-medium pr-3" min="10" max="600">
                     </div>
                      <div class="custom-option sm:col-span-2 sm:col-start-2 flex items-center gap-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 has-[:checked]:border-indigo-600 has-[:checked]:dark:border-indigo-600">
                         <input type="radio" name="gameMode" id="mode-question-limit" value="questionLimit" class="sr-only">
@@ -201,7 +201,7 @@
             startErrorEl.textContent = '';
             let summary = `<p><strong>Mode:</strong> ${state.gameMode.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</p>`;
             if (state.gameMode === 'timeAttack') {
-                const time = sanitizeNumberInput(timeAttackInput.value, 10, 1800, config.timeAttackDuration);
+                const time = sanitizeNumberInput(timeAttackInput.value, 10, 600, config.timeAttackDuration);
                 timeAttackInput.value = time;
                 summary += `<p><strong>Duration:</strong> ${time} seconds</p>`;
             } else if (state.gameMode === 'questionLimit') {
@@ -221,7 +221,7 @@
             scoreDisplayEl.style.display = state.gameMode === 'practice' ? 'none' : 'block';
             switch (state.gameMode) {
                 case 'timeAttack':
-                    state.timeLeft = sanitizeNumberInput(timeAttackInput.value, 10, 1800, config.timeAttackDuration);
+                    state.timeLeft = sanitizeNumberInput(timeAttackInput.value, 10, 600, config.timeAttackDuration);
                     gameModeInfoEl.textContent = `Time: ${state.timeLeft}`;
                     break;
                 case 'questionLimit':
