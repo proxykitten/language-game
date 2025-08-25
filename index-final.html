@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Learning Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .screen, .modal {
+            display: none;
+        }
+        .screen.active, .modal.active {
+            display: flex; /* Use flex for centering modal content */
+        }
+        /* Custom transition for feedback message */
+        .feedback-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .feedback-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+        /* Custom radio/checkbox styles */
+        .custom-option input:checked + label {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            border-color: #4f46e5; /* indigo-600 */
+        }
+        .custom-option label {
+            transition: all 150ms ease-in-out;
+        }
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8">
+
+        <!-- ===== Start Screen ===== -->
+        <div id="start-screen" class="screen active flex-col">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-6 text-center">Game Setup</h1>
+            
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3 text-slate-700 dark:text-slate-300">Game Mode</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="game-mode-selection">
+                    <div class="custom-option sm:col-span-1">
+                        <input type="radio" name="gameMode" id="mode-practice" value="practice" class="sr-only" checked>
+                        <label for="mode-practice" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">Practice</label>
+                    </div>
+                    <div class="custom-option sm:col-span-2 flex items-center gap-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 has-[:checked]:border-indigo-600 has-[:checked]:dark:border-indigo-600">
+                        <input type="radio" name="gameMode" id="mode-time-attack" value="timeAttack" class="sr-only">
+                        <label for="mode-time-attack" class="w-full text-center p-3 font-medium cursor-pointer rounded-l-md has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-slate-100 dark:hover:bg-slate-700">Time Attack</label>
+                        <input type="number" id="time-attack-input" placeholder="60" class="w-16 text-center bg-transparent focus:outline-none font-medium pr-3" min="10" max="1800">
+                    </div>
+                     <div class="custom-option sm:col-span-2 sm:col-start-2 flex items-center gap-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 has-[:checked]:border-indigo-600 has-[:checked]:dark:border-indigo-600">
+                        <input type="radio" name="gameMode" id="mode-question-limit" value="questionLimit" class="sr-only">
+                        <label for="mode-question-limit" class="w-full text-center p-3 font-medium cursor-pointer rounded-l-md has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-slate-100 dark:hover:bg-slate-700">Question Limit</label>
+                        <input type="number" id="question-limit-input" placeholder="20" class="w-16 text-center bg-transparent focus:outline-none font-medium pr-3" min="1" max="200">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-3 text-slate-700 dark:text-slate-300">Categories</h2>
+                <div class="grid grid-cols-2 gap-2" id="category-selection">
+                    <div class="custom-option"><input type="checkbox" name="category" id="cat-numbers" value="numbers" class="sr-only" checked><label for="cat-numbers" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">Numbers</label></div>
+                    <div class="custom-option"><input type="checkbox" name="category" id="cat-dates" value="dates" class="sr-only" checked><label for="cat-dates" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">Days & Months</label></div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold mb-3 text-slate-700 dark:text-slate-300">Languages</h2>
+                <div class="grid grid-cols-2 gap-2" id="language-selection">
+                    <div class="custom-option"><input type="checkbox" name="language" id="lang-english" value="english" class="sr-only" checked><label for="lang-english" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">English</label></div>
+                    <div class="custom-option"><input type="checkbox" name="language" id="lang-spanish" value="spanish" class="sr-only" checked><label for="lang-spanish" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">Spanish</label></div>
+                    <div class="custom-option"><input type="checkbox" name="language" id="lang-french" value="french" class="sr-only" checked><label for="lang-french" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">French</label></div>
+                    <div class="custom-option"><input type="checkbox" name="language" id="lang-german" value="german" class="sr-only" checked><label for="lang-german" class="block w-full text-center rounded-lg border-2 border-slate-300 dark:border-slate-600 p-3 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">German</label></div>
+                </div>
+            </div>
+
+            <button id="start-game-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition duration-300">Start Game</button>
+            <p id="start-error" class="text-red-500 text-center mt-3 h-4"></p>
+        </div>
+
+        <!-- ===== Game Screen ===== -->
+        <div id="game-screen" class="screen flex-col text-center">
+            <div class="flex justify-between items-center mb-4 text-slate-500 dark:text-slate-400 font-medium">
+                <div><button id="quit-game-btn" class="text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">&larr; Main Menu</button></div>
+                <div class="flex items-center gap-4">
+                    <div id="score-display">Score: 0</div>
+                    <div id="game-mode-info-display"></div>
+                </div>
+            </div>
+            <p id="language-prompt" class="mb-6">Write the word in the given language.</p>
+            <div class="my-8"><div id="prompt-display" class="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white p-4 bg-slate-100 dark:bg-slate-700 rounded-xl min-h-[80px] flex items-center justify-center">...</div></div>
+            <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off" autocorrect="off" spellcheck="false" class="w-full px-4 py-3 text-lg bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:ring-4 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-500 outline-none transition duration-300">
+            <div id="feedback-container" class="h-14 mt-4 text-lg"></div>
+        </div>
+
+        <!-- ===== Results Screen ===== -->
+        <div id="results-screen" class="screen flex-col text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">Game Over!</h1>
+            <p id="results-message" class="text-lg text-slate-600 dark:text-slate-300 mb-6">You did a great job.</p>
+            <div class="bg-slate-100 dark:bg-slate-700 rounded-xl p-6 mb-8">
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">FINAL SCORE</p>
+                <p id="final-score" class="text-5xl font-bold text-slate-900 dark:text-white">0</p>
+            </div>
+            <button id="play-again-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition duration-300">Play Again</button>
+        </div>
+    </div>
+
+    <!-- ===== Ready Modal ===== -->
+    <div id="ready-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 text-center max-w-sm w-full">
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">Are you ready?</h2>
+            <div id="settings-summary" class="text-slate-600 dark:text-slate-400 mb-6 space-y-2"></div>
+            <div class="flex gap-3">
+                <button id="modal-back-btn" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition duration-300">Back</button>
+                <button id="modal-start-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition duration-300">Start</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameData = {
+            numbers: {
+                english: ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty","twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven","twenty-eight","twenty-nine","thirty","thirty-one","thirty-two","thirty-three","thirty-four","thirty-five","thirty-six","thirty-seven","thirty-eight","thirty-nine","forty","forty-one","forty-two","forty-three","forty-four","forty-five","forty-six","forty-seven","forty-eight","forty-nine","fifty","fifty-one","fifty-two","fifty-three","fifty-four","fifty-five","fifty-six","fifty-seven","fifty-eight","fifty-nine","sixty","sixty-one","sixty-two","sixty-three","sixty-four","sixty-five","sixty-six","sixty-seven","sixty-eight","sixty-nine","seventy","seventy-one","seventy-two","seventy-three","seventy-four","seventy-five","seventy-six","seventy-seven","seventy-eight","seventy-nine","eighty","eighty-one","eighty-two","eighty-three","eighty-four","eighty-five","eighty-six","eighty-seven","eighty-eight","eighty-nine","ninety","ninety-one","ninety-two","ninety-three","ninety-four","ninety-five","ninety-six","ninety-seven","ninety-eight","ninety-nine","one hundred"],
+                spanish: ["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte","veintiuno","veintidós","veintitrés","veinticuatro","veinticinco","veintiséis","veintisiete","veintiocho","veintinueve","treinta","treinta y uno","treinta y dos","treinta y tres","treinta y cuatro","treinta y cinco","treinta y seis","treinta y siete","treinta y ocho","treinta y nueve","cuarenta","cuarenta y uno","cuarenta y dos","cuarenta y tres","cuarenta y cuatro","cuarenta y cinco","cuarenta y seis","cuarenta y siete","cuarenta y ocho","cuarenta y nueve","cincuenta","cincuenta y uno","cincuenta y dos","cincuenta y tres","cincuenta y cuatro","cincuenta y cinco","cincuenta y seis","cincuenta y siete","cincuenta y ocho","cincuenta y nueve","sesenta","sesenta y uno","sesenta y dos","sesenta y tres","sesenta y cuatro","sesenta y cinco","sesenta y seis","sesenta y siete","sesenta y ocho","sesenta y nueve","setenta","setenta y uno","setenta y dos","setenta y tres","setenta y cuatro","setenta y cinco","setenta y seis","setenta y siete","setenta y ocho","setenta y nueve","ochenta","ochenta y uno","ochenta y dos","ochenta y tres","ochenta y cuatro","ochenta y cinco","ochenta y seis","ochenta y siete","ochenta y ocho","ochenta y nueve","noventa","noventa y uno","noventa y dos","noventa y tres","noventa y cuatro","noventa y cinco","noventa y seis","noventa y siete","noventa y ocho","noventa y nueve","cien"],
+                french: ["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf","vingt","vingt et un","vingt-deux","vingt-trois","vingt-quatre","vingt-cinq","vingt-six","vingt-sept","vingt-huit","vingt-neuf","trente","trente et un","trente-deux","trente-trois","trente-quatre","trente-cinq","trente-six","trente-sept","trente-huit","trente-neuf","quarante","quarante et un","quarante-deux","quarante-trois","quarante-quatre","quarante-cinq","quarante-six","quarante-sept","quarante-huit","quarante-neuf","cinquante","cinquante et un","cinquante-deux","cinquante-trois","cinquante-quatre","cinquante-cinq","cinquante-six","cinquante-sept","cinquante-huit","cinquante-neuf","soixante","soixante et un","soixante-deux","soixante-trois","soixante-quatre","soixante-cinq","soixante-six","soixante-sept","soixante-huit","soixante-neuf","soixante-dix","soixante et onze","soixante-douze","soixante-treize","soixante-quatorze","soixante-quinze","soixante-seize","soixante-dix-sept","soixante-dix-huit","soixante-dix-neuf","quatre-vingts","quatre-vingt-un","quatre-vingt-deux","quatre-vingt-trois","quatre-vingt-quatre","quatre-vingt-cinq","quatre-vingt-six","quatre-vingt-sept","quatre-vingt-huit","quatre-vingt-neuf","quatre-vingt-dix","quatre-vingt-onze","quatre-vingt-douze","quatre-vingt-treize","quatre-vingt-quatorze","quatre-vingt-quinze","quatre-vingt-seize","quatre-vingt-dix-sept","quatre-vingt-dix-huit","quatre-vingt-dix-neuf","cent"],
+                german: ["null","eins","zwei","drei","vier","fünf","sechs","sieben","acht","neun","zehn","elf","zwölf","dreizehn","vierzehn","fünfzehn","sechzehn","siebzehn","achtzehn","neunzehn","zwanzig","einundzwanzig","zweiundzwanzig","dreiundzwanzig","vierundzwanzig","fünfundzwanzig","sechsundzwanzig","siebenundzwanzig","achtundzwanzig","neunundzwanzig","dreißig","einunddreißig","zweiunddreißig","dreiunddreißig","vierunddreißig","fünfunddreißig","sechsunddreißig","siebenunddreißig","achtunddreißig","neununddreißig","vierzig","einundvierzig","zweiundvierzig","dreiundvierzig","vierundvierzig","fünfundvierzig","sechsundvierzig","siebenundvierzig","achtundvierzig","neunundvierzig","fünfzig","einundfünfzig","zweiundfünfzig","dreiundfünfzig","vierundfünfzig","fünfundfünfzig","sechsundfünfzig","siebenundfünfzig","achtundfünfzig","neunundfünfzig","sechzig","einundsechzig","zweiundsechzig","dreiundsechzig","vierundsechzig","fünfundsechzig","sechsundsechzig","siebenundsechzig","achtundsechzig","neunundsechzig","siebzig","einundsiebzig","zweiundsiebzig","dreiundsiebzig","vierundvierzig","fünfundsiebzig","sechsundsiebzig","siebenundsiebzig","achtundsiebzig","neunundsiebzig","achtzig","einundachtzig","zweiundachtzig","dreiundachtzig","vierundachtzig","fünfundachtzig","sechsundachtzig","siebenundachtzig","achtundachtzig","neunundachtzig","neunzig","einundneunzig","zweiundneunzig","dreiundneunzig","vierundneunzig","fünfundneunzig","sechsundneunzig","siebenundneunzig","achtundneunzig","neunundneunzig","einhundert"]
+            },
+            dates: {
+                english: { days: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], months: ["January","February","March","April","May","June","July","August","September","October","November","December"] },
+                spanish: { days: ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"], months: ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"] },
+                french: { days: ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"], months: ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"] },
+                german: { days: ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"], months: ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"] }
+            }
+        };
+
+        const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), results: document.getElementById('results-screen') };
+        const readyModal = document.getElementById('ready-modal');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const quitGameBtn = document.getElementById('quit-game-btn');
+        const modalStartBtn = document.getElementById('modal-start-btn');
+        const modalBackBtn = document.getElementById('modal-back-btn');
+        const languagePromptEl = document.getElementById('language-prompt');
+        const promptDisplayEl = document.getElementById('prompt-display');
+        const answerInputEl = document.getElementById('answer-input');
+        const feedbackContainerEl = document.getElementById('feedback-container');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const gameModeInfoEl = document.getElementById('game-mode-info-display');
+        const finalScoreEl = document.getElementById('final-score');
+        const startErrorEl = document.getElementById('start-error');
+        const settingsSummaryEl = document.getElementById('settings-summary');
+        const timeAttackInput = document.getElementById('time-attack-input');
+        const questionLimitInput = document.getElementById('question-limit-input');
+        const resultsMessageEl = document.getElementById('results-message');
+        let state = {};
+        const config = { timeAttackDuration: 60, questionLimitCount: 20, idleTimeout: 120000 };
+        
+        function sanitizeNumberInput(value, min, max, defaultValue) {
+            let num = parseInt(value.replace(/[^0-9]/g, ''), 10);
+            if (isNaN(num)) return defaultValue;
+            if (num < min) return min;
+            if (num > max) return max;
+            return num;
+        }
+
+        function switchScreen(screenName) { Object.values(screens).forEach(s => s.classList.remove('active')); screens[screenName].classList.add('active'); }
+        function normalizeString(str) { return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ß/g, 'ss').replace(/[\s-']/g, ''); }
+        function levenshteinDistance(s1, s2) { const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null)); for (let i = 0; i <= s1.length; i++) track[0][i] = i; for (let j = 0; j <= s2.length; j++) track[j][0] = j; for (let j = 1; j <= s2.length; j++) { for (let i = 1; i <= s1.length; i++) { const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1; track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator); } } return track[s2.length][s1.length]; }
+        function showFeedback(text, type) { feedbackContainerEl.innerHTML = ''; const el = document.createElement('div'); const colors = { correct: 'text-green-600 dark:text-green-400', close: 'text-amber-600 dark:text-amber-400', wrong: 'text-red-600 dark:text-red-400' }; el.className = `font-semibold ${colors[type]} feedback-enter`; el.innerHTML = text; feedbackContainerEl.appendChild(el); requestAnimationFrame(() => el.classList.add('feedback-enter-active')); }
+        
+        function resetState() {
+            state = { gameMode: 'practice', selectedLanguages: [], selectedCategories: [], score: 0, questionCount: 0, timeLeft: config.timeAttackDuration, timerInterval: null, idleTimer: null, isChecking: false };
+        }
+        
+        function showReadyModal() {
+            state.gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+            state.selectedLanguages = Array.from(document.querySelectorAll('input[name="language"]:checked')).map(el => el.value);
+            state.selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(el => el.value);
+            
+            if (state.selectedLanguages.length === 0) { startErrorEl.textContent = 'Please select at least one language.'; return; }
+            if (state.selectedCategories.length === 0) { startErrorEl.textContent = 'Please select at least one category.'; return; }
+            
+            startErrorEl.textContent = '';
+            let summary = `<p><strong>Mode:</strong> ${state.gameMode.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</p>`;
+            if (state.gameMode === 'timeAttack') {
+                const time = sanitizeNumberInput(timeAttackInput.value, 10, 1800, config.timeAttackDuration);
+                timeAttackInput.value = time;
+                summary += `<p><strong>Duration:</strong> ${time} seconds</p>`;
+            } else if (state.gameMode === 'questionLimit') {
+                const questions = sanitizeNumberInput(questionLimitInput.value, 1, 200, config.questionLimitCount);
+                questionLimitInput.value = questions;
+                summary += `<p><strong>Questions:</strong> ${questions}</p>`;
+            }
+            summary += `<p><strong>Categories:</strong> ${state.selectedCategories.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join(', ')}</p>`;
+            summary += `<p><strong>Languages:</strong> ${state.selectedLanguages.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join(', ')}</p>`;
+            settingsSummaryEl.innerHTML = summary;
+            readyModal.classList.add('active');
+        }
+        
+        function launchGame() {
+            readyModal.classList.remove('active');
+            scoreDisplayEl.textContent = `Score: ${state.score}`;
+            scoreDisplayEl.style.display = state.gameMode === 'practice' ? 'none' : 'block';
+            switch (state.gameMode) {
+                case 'timeAttack':
+                    state.timeLeft = sanitizeNumberInput(timeAttackInput.value, 10, 1800, config.timeAttackDuration);
+                    gameModeInfoEl.textContent = `Time: ${state.timeLeft}`;
+                    break;
+                case 'questionLimit':
+                    state.questionCount = 0;
+                    config.questionLimitCount = sanitizeNumberInput(questionLimitInput.value, 1, 200, config.questionLimitCount);
+                    gameModeInfoEl.textContent = `Q: 1 / ${config.questionLimitCount}`;
+                    break;
+                default: gameModeInfoEl.textContent = 'Practice Mode'; break;
+            }
+            switchScreen('game');
+            resetIdleTimer();
+            nextRound();
+        }
+        
+        function quitGame() {
+            clearTimeout(state.idleTimer);
+            clearInterval(state.timerInterval);
+            resetState();
+            switchScreen('start');
+        }
+        
+        function endGame(reason = "You did a great job.") {
+            clearTimeout(state.idleTimer);
+            clearInterval(state.timerInterval);
+            resultsMessageEl.textContent = reason;
+            finalScoreEl.textContent = state.score;
+            switchScreen('results');
+        }
+        
+        function updateTimer() { state.timeLeft--; gameModeInfoEl.textContent = `Time: ${state.timeLeft}`; if (state.timeLeft <= 0) endGame("Time's up!"); }
+        
+        function nextRound() {
+            if (state.gameMode === 'timeAttack' && state.timeLeft > 0) {
+                state.timerInterval = setInterval(updateTimer, 1000);
+            }
+            state.isChecking = false; feedbackContainerEl.innerHTML = ''; answerInputEl.value = ''; answerInputEl.disabled = false; answerInputEl.focus();
+            
+            const category = state.selectedCategories[Math.floor(Math.random() * state.selectedCategories.length)];
+            
+            let sourceLang, targetLang;
+            const allLangs = Object.keys(gameData[category]);
+
+            if (state.selectedLanguages.length === 1) {
+                targetLang = state.selectedLanguages[0];
+                do {
+                    sourceLang = allLangs[Math.floor(Math.random() * allLangs.length)];
+                } while (sourceLang === targetLang);
+            } else {
+                const langIndex1 = Math.floor(Math.random() * state.selectedLanguages.length);
+                targetLang = state.selectedLanguages[langIndex1];
+                let langIndex2;
+                do {
+                    langIndex2 = Math.floor(Math.random() * state.selectedLanguages.length);
+                } while (langIndex1 === langIndex2);
+                sourceLang = state.selectedLanguages[langIndex2];
+            }
+
+            const capitalizedTargetLanguage = targetLang.charAt(0).toUpperCase() + targetLang.slice(1);
+
+            if (category === 'numbers') {
+                const number = Math.floor(Math.random() * gameData.numbers.english.length);
+                state.correctAnswer = gameData.numbers[targetLang][number];
+                languagePromptEl.textContent = `Write this number in ${capitalizedTargetLanguage}:`;
+                promptDisplayEl.textContent = number;
+            } else { // dates
+                const subCategory = Math.random() < 0.5 ? 'days' : 'months';
+                const wordIndex = Math.floor(Math.random() * gameData.dates.english[subCategory].length);
+                const sourceWord = gameData.dates[sourceLang][subCategory][wordIndex];
+                state.correctAnswer = gameData.dates[targetLang][subCategory][wordIndex];
+                languagePromptEl.textContent = `What is "${sourceWord}" in ${capitalizedTargetLanguage}?`;
+                promptDisplayEl.textContent = sourceWord;
+            }
+        }
+        
+        function checkAnswer() {
+            if (state.isChecking) return;
+            if (state.gameMode === 'timeAttack') {
+                clearInterval(state.timerInterval);
+            }
+            state.isChecking = true; answerInputEl.disabled = true; const userAnswer = answerInputEl.value.trim();
+            if (!userAnswer) { showFeedback('Please enter an answer.', 'wrong'); setTimeout(handleNextStep, 2000); return; }
+            const normalizedUserAnswer = normalizeString(userAnswer); const normalizedCorrectAnswer = normalizeString(state.correctAnswer); const distance = levenshteinDistance(normalizedUserAnswer, normalizedCorrectAnswer);
+            if (distance <= 1) { if (state.gameMode !== 'practice') { state.score++; } showFeedback(distance === 0 ? '🎉 Correct!' : '👍 So close! Accepted.', distance === 0 ? 'correct' : 'close'); } else { showFeedback(`Not quite. The answer is: <br><strong>${state.correctAnswer}</strong>`, 'wrong'); }
+            if (state.gameMode !== 'practice') { scoreDisplayEl.textContent = `Score: ${state.score}`; }
+            setTimeout(handleNextStep, 2500);
+        }
+        
+        function handleNextStep() {
+            if (state.gameMode === 'questionLimit') {
+                state.questionCount++;
+                if (state.questionCount >= config.questionLimitCount) {
+                    endGame();
+                } else {
+                    gameModeInfoEl.textContent = `Q: ${state.questionCount + 1} / ${config.questionLimitCount}`;
+                    nextRound();
+                }
+            } else { nextRound(); }
+        }
+        
+        function resetIdleTimer() {
+            clearTimeout(state.idleTimer);
+            state.idleTimer = setTimeout(() => endGame("Session ended due to inactivity."), config.idleTimeout);
+        }
+
+        ['click', 'keydown', 'mousemove'].forEach(evt => document.addEventListener(evt, () => {
+            if (screens.game.classList.contains('active')) {
+                resetIdleTimer();
+            }
+        }));
+        
+        startGameBtn.addEventListener('click', showReadyModal);
+        modalStartBtn.addEventListener('click', launchGame);
+        modalBackBtn.addEventListener('click', () => readyModal.classList.remove('active'));
+        quitGameBtn.addEventListener('click', quitGame);
+        playAgainBtn.addEventListener('click', quitGame);
+        answerInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
+        
+        document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                timeAttackInput.readOnly = e.target.value !== 'timeAttack';
+                questionLimitInput.readOnly = e.target.value !== 'questionLimit';
+            });
+        });
+        
+        resetState();
+        timeAttackInput.readOnly = true;
+        questionLimitInput.readOnly = true;
+    </script>
+</body>
+</html>
